@@ -1,0 +1,8 @@
+name: FlyTimer
+main: com.sinius15.flyer.FlyTimer
+author: Sinius15
+version: 1.0
+commands:
+   fly:
+       description: command to fly.
+       usage: "'/fly' to start or stop flying, '/fly check' to get your flight state."
