@@ -12,13 +12,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * @idee http://forums.bukkit.org/threads/plugin-to-set-flight-time-for-different-ranks.295971/
+ * This is the main Plugin Class. From here, everything inside this plugin is
+ * started/called.<br>
+ * <br>
+ * The idea for htis plugin is from {@link http
+ * ://forums.bukkit.org/threads/plugin
+ * -to-set-flight-time-for-different-ranks.295971/}
+ * 
  * @author Sinius15
- *
+ * 
  */
 public class FlyTimer extends JavaPlugin implements CommandExecutor {
 
-	public static HashMap<String, Rank> ranks = new HashMap<>();  //<name, Rank>
+	public static HashMap<String, Rank> ranks = new HashMap<>(); // <name, Rank>
 	public static HashMap<UUID, PlayerState> states = new HashMap<>();
 
 	@Override
@@ -28,7 +34,10 @@ public class FlyTimer extends JavaPlugin implements CommandExecutor {
 		getCommand("fly").setExecutor(this);
 		Bukkit.getScheduler().runTaskTimer(this, new FlyTimerUpdater(), 0, 20);
 	}
-	
+
+	/**
+	 * Called when '/fly **' is issued.
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
@@ -44,30 +53,38 @@ public class FlyTimer extends JavaPlugin implements CommandExecutor {
 			return true;
 		}
 		if (args.length == 0) { // just fly
-			if(state.isFlying)
-				state.stopFlying();
-			else
-				state.startFlying();
+			state.toggleFlying();
 			return true;
 		}
 		return false;
 	}
-	
-	public void loadconfig(){
+
+	/**
+	 * Loads the config. If the config does not exist, the default config will
+	 * be copeyd
+	 */
+	public void loadconfig() {
 		saveDefaultConfig();
-		for(String key : getConfig().getKeys(true)){
+		for (String key : getConfig().getKeys(true)) {
 			String[] split = key.split("\\.");
-			if(split.length == 2){
-				ranks.put(split[1], new Rank(split[1], getConfig().getInt(key+".airTime"), getConfig().getInt(key+".cooldownTime")));
+			if (split[0].equals("rank") && split.length == 2) {
+				ranks.put(split[1],
+						new Rank(split[1],
+								getConfig().getInt(key + ".airTime"),
+								getConfig().getInt(key + ".cooldownTime")));
 			}
 		}
-		
+
 	}
-	
-	public static PlayerState getState(UUID player){
-		return states.get(player);
-	}
-	public static PlayerState getState(Player player){
+
+	/**
+	 * gives you the right {@link PlayerState} with the right {@link Player}. If
+	 * the player does not exist, null will be returned.
+	 * 
+	 * @param player
+	 *            the player to search for.
+	 */
+	public static PlayerState getState(Player player) {
 		return states.get(player.getUniqueId());
 	}
 
