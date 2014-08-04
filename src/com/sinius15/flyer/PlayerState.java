@@ -40,10 +40,11 @@ public class PlayerState {
 	 */
 	public PlayerState(Player player) {
 		this.uuid = player.getUniqueId();
-		updateRank();
+		this.rank = getPlayerRank(Bukkit.getPlayer(uuid));
 
 		this.airTimeLeft = this.rank.flyTime;
 		this.coolDownLeft = 0;
+		isFlying = player.getAllowFlight();
 	}
 
 	/**
@@ -64,6 +65,7 @@ public class PlayerState {
 				return;
 			airTimeLeft--;
 			if (airTimeLeft == 0) {
+				player.setFlying(false);
 				player.setAllowFlight(false);
 				isFlying = false;
 				coolDownLeft = rank.cooldown;
@@ -91,18 +93,24 @@ public class PlayerState {
 	/**
 	 * I update the {@link #rank} of this {@link PlayerState}. This must be done
 	 * occasionaly in case if someone gets opperator rigts or permissions is
-	 * realoded.
+	 * realoded.<br>
+	 * <br>
+	 * This is an update function, and can not be called to initialize the Rank
+	 * for the first time!
 	 */
 	public void updateRank() {
+		// this will throw a nullpointer exception if rank is null.
+		String oldRank = this.rank.name;
 		this.rank = getPlayerRank(Bukkit.getPlayer(uuid));
 
 		if (this.rank == null)
 			throw new NullPointerException(
 					"You need to have a 'default' rank for people with no permission and a 'op' rank for opperators!!");
-		if (this.rank.cooldown == -1)
-			coolDownLeft = -1;
-		if (this.rank.flyTime == -1)
-			airTimeLeft = -1;
+		if (!oldRank.equals(this.rank.name)) {
+			airTimeLeft = rank.flyTime;
+			coolDownLeft = rank.cooldown;
+		}
+
 	}
 
 	/**
@@ -117,8 +125,10 @@ public class PlayerState {
 		if (airTimeLeft > 0 || airTimeLeft == -1) {
 			isFlying = true;
 			player.setAllowFlight(true);
-			player.sendMessage(ChatColor.YELLOW + "[fly] You can now fly for "
-					+ airTimeLeft + " seconds.");
+			if (rank.flyTime != -1)
+				player.sendMessage(ChatColor.YELLOW
+						+ "[fly] You can now fly for " + airTimeLeft
+						+ " seconds.");
 		}
 		if (airTimeLeft == 0) {
 			player.sendMessage(ChatColor.YELLOW
@@ -149,16 +159,27 @@ public class PlayerState {
 	 */
 	public void check() {
 		Player player = getPlayer();
-		if (isFlying)
-			player.sendMessage(ChatColor.YELLOW + "[fly] Flying, "
-					+ airTimeLeft + " seconds left.");
-		else if (coolDownLeft > 0)
+		if (isFlying) {
+
+			if (rank.flyTime == -1)
+				player.sendMessage(ChatColor.YELLOW
+						+ "[fly] Flying, unendless time left.");
+			else
+				player.sendMessage(ChatColor.YELLOW + "[fly] Flying, "
+						+ airTimeLeft + " seconds left.");
+		} else if (coolDownLeft > 0) {
 			player.sendMessage(ChatColor.YELLOW + "[fly] In cooldown, "
 					+ coolDownLeft + " seconds left.");
-		else
-			player.sendMessage(ChatColor.YELLOW + "[fly] Ready to fly, "
-					+ airTimeLeft + " seconds left.");
-
+		} else {
+			if (rank.flyTime == -1)
+				player.sendMessage(ChatColor.YELLOW
+						+ "[fly] Ready to fly, unendless time left.");
+			else
+				player.sendMessage(ChatColor.YELLOW + "[fly] Ready to fly, "
+						+ airTimeLeft + " seconds left.");
+		}
+		player.sendMessage(ChatColor.YELLOW + "[fly] Your rank is " + rank.name
+				+ ".");
 	}
 
 	/**

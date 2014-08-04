@@ -1,7 +1,7 @@
 rank:
    op:
       airTime: -1
-      cooldowntime: -1
+      cooldownTime: -1
    default:
       airTime: 10
-      cooldowntime: 300
+      cooldownTime: 300

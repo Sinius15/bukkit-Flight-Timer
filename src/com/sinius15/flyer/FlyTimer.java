@@ -15,8 +15,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  * This is the main Plugin Class. From here, everything inside this plugin is
  * started/called.<br>
  * <br>
- * The idea for htis plugin is from {@link http
- * ://forums.bukkit.org/threads/plugin
+ * The idea for htis plugin is from {@link 
+ * forums.bukkit.org/threads/plugin
  * -to-set-flight-time-for-different-ranks.295971/}
  * 
  * @author Sinius15
